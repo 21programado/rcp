@@ -102,6 +102,11 @@
             color: white;
         }
 
+        .btn-print {
+            background: #8b5cf6;
+            color: white;
+        }
+
         .section {
             background: #2a2a2a;
             border-radius: 12px;
@@ -115,6 +120,15 @@
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .med-grid {
@@ -140,46 +154,10 @@
         .med-magnesio { background: #22c55e; }
         .med-bicarb1m { background: #3b82f6; }
         .med-bicarb16m { background: #6366f1; }
-
-        .last-doses {
-            display: grid;
-            gap: 8px;
-        }
-
-        .dose-item {
-            background: #3a3a3a;
-            padding: 12px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .dose-name {
-            font-weight: 600;
-            font-size: 0.95rem;
-            flex: 1;
-        }
-
-        .dose-times {
-            text-align: right;
-            font-size: 0.85rem;
-            flex-shrink: 0;
-        }
-
-        .dose-rcp {
-            color: #22d3ee;
-            font-weight: 600;
-        }
-
-        .dose-clock {
-            color: #999;
-            margin-top: 2px;
-        }
+        .med-atropina { background: #ec4899; }
 
         .history {
-            max-height: 350px;
+            max-height: 500px;
             overflow-y: auto;
             display: grid;
             gap: 8px;
@@ -205,8 +183,8 @@
         }
 
         .history-dot {
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             flex-shrink: 0;
         }
@@ -216,10 +194,26 @@
             font-size: 0.95rem;
         }
 
+        .history-times {
+            text-align: right;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .history-rcp {
+            color: #22d3ee;
+            font-weight: 600;
+        }
+
+        .history-clock {
+            color: #999;
+            margin-top: 2px;
+        }
+
         .empty-state {
             text-align: center;
             color: #999;
-            padding: 20px;
+            padding: 30px 20px;
             font-size: 0.9rem;
         }
 
@@ -301,6 +295,82 @@
             color: white;
         }
 
+        /* Estilos para impresión */
+        @media print {
+            body {
+                background: white;
+                color: black;
+                padding: 20px;
+            }
+
+            .timer-section,
+            .section:has(#medGrid),
+            .btn-print {
+                display: none !important;
+            }
+
+            .section {
+                background: white;
+                border: 1px solid #ccc;
+                page-break-inside: avoid;
+                margin-bottom: 20px;
+            }
+
+            .section h2 {
+                color: black;
+                border-bottom: 2px solid #000;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+
+            .section-header {
+                border-bottom: 2px solid #000;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+
+            .section-header h2 {
+                border: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .history-item {
+                background: white;
+                border: 1px solid #ddd;
+                color: black;
+                margin-bottom: 10px;
+            }
+
+            .history-name {
+                color: black;
+            }
+
+            .history-rcp {
+                color: #0066cc;
+            }
+
+            .history-clock {
+                color: #666;
+            }
+
+            .history-dot {
+                border: 2px solid #000;
+            }
+
+            .history {
+                max-height: none;
+            }
+
+            .modal-overlay {
+                display: none !important;
+            }
+
+            .empty-state {
+                display: none;
+            }
+        }
+
         /* Tablet y Desktop */
         @media (min-width: 768px) {
             body {
@@ -349,20 +419,20 @@
                 font-size: 1rem;
             }
 
-            .dose-item, .history-item {
+            .history-item {
                 padding: 15px;
             }
 
-            .dose-name, .history-name {
+            .history-name {
                 font-size: 1rem;
             }
 
-            .dose-times {
+            .history-times {
                 font-size: 0.9rem;
             }
 
             .history {
-                max-height: 400px;
+                max-height: 500px;
             }
         }
 
@@ -426,12 +496,15 @@
 
         <div class="section">
             <h2>💊 Administrar Medicación</h2>
-            <div class="med-grid">
+            <div id="medGrid" class="med-grid">
                 <button class="med-button med-adrenalina" onclick="administrar('adrenalina', 'Adrenalina', '#ef4444')">
                     Adrenalina
                 </button>
                 <button class="med-button med-amiodarona" onclick="administrar('amiodarona', 'Amiodarona', '#f97316')">
                     Amiodarona
+                </button>
+                <button class="med-button med-atropina" onclick="administrar('atropina', 'Atropina', '#ec4899')">
+                    Atropina
                 </button>
                 <button class="med-button med-gluconato" onclick="administrar('gluconato', 'Gluconato de Calcio', '#eab308')">
                     Gluconato de Calcio
@@ -449,16 +522,14 @@
         </div>
 
         <div class="section">
-            <h2>🕐 Última Administración</h2>
-            <div id="lastDoses" class="last-doses">
-                <div class="empty-state">No hay administraciones registradas</div>
+            <div class="section-header">
+                <h2>📋 Historial de Administraciones</h2>
+                <button class="btn-print" onclick="printHistory()" style="padding: 10px 16px; font-size: 0.9rem;">
+                    🖨️ Imprimir
+                </button>
             </div>
-        </div>
-
-        <div class="section">
-            <h2>📋 Historial Completo</h2>
             <div id="history" class="history">
-                <div class="empty-state">No hay historial de administraciones</div>
+                <div class="empty-state">No hay administraciones registradas.<br>Presiona un medicamento para comenzar.</div>
             </div>
         </div>
     </div>
@@ -484,26 +555,22 @@
         let isRunning = false;
         let intervalId = null;
         let history = [];
-        let lastDoses = {};
-        let pendingMedication = null; // Para almacenar la medicación pendiente de confirmar
+        let pendingMedication = null;
 
         // Cargar datos del localStorage al iniciar
         window.addEventListener('load', () => {
             const savedSeconds = localStorage.getItem('rcp_seconds');
             const savedHistory = localStorage.getItem('rcp_history');
-            const savedLastDoses = localStorage.getItem('rcp_lastDoses');
             const savedRunning = localStorage.getItem('rcp_isRunning');
 
             if (savedSeconds) seconds = parseInt(savedSeconds);
             if (savedHistory) history = JSON.parse(savedHistory);
-            if (savedLastDoses) lastDoses = JSON.parse(savedLastDoses);
             if (savedRunning === 'true') {
                 isRunning = true;
                 startInterval();
             }
 
             updateDisplay();
-            renderLastDoses();
             renderHistory();
         });
 
@@ -529,14 +596,12 @@
             const btn = document.getElementById('startBtn');
             
             if (isRunning) {
-                // Pausar
                 clearInterval(intervalId);
                 isRunning = false;
                 btn.className = 'btn-start';
                 btn.innerHTML = '▶️ Iniciar';
                 localStorage.setItem('rcp_isRunning', 'false');
             } else {
-                // Iniciar
                 startInterval();
                 isRunning = true;
                 btn.className = 'btn-pause';
@@ -554,7 +619,6 @@
             seconds = 0;
             isRunning = false;
             history = [];
-            lastDoses = {};
             
             const btn = document.getElementById('startBtn');
             btn.className = 'btn-start';
@@ -562,19 +626,15 @@
             
             localStorage.removeItem('rcp_seconds');
             localStorage.removeItem('rcp_history');
-            localStorage.removeItem('rcp_lastDoses');
             localStorage.removeItem('rcp_isRunning');
             
             updateDisplay();
-            renderLastDoses();
             renderHistory();
         }
 
         function administrar(id, name, color) {
-            // Guardar los datos para confirmar después
             pendingMedication = { id, name, color };
             
-            // Mostrar modal de confirmación
             const modal = document.getElementById('modalOverlay');
             const medNameEl = document.getElementById('modalMedName');
             
@@ -582,7 +642,7 @@
             medNameEl.style.background = color;
             
             modal.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevenir scroll mientras el modal está abierto
+            document.body.style.overflow = 'hidden';
         }
 
         function confirmarAdministracion() {
@@ -605,19 +665,13 @@
                 rcpTime: rcpTime
             };
 
+            // Agregar al principio del historial (más reciente primero)
             history.unshift(entry);
-            lastDoses[id] = {
-                name: name,
-                timestamp: timestamp,
-                rcpTime: rcpTime
-            };
 
+            // Guardar en localStorage
             localStorage.setItem('rcp_history', JSON.stringify(history));
-            localStorage.setItem('rcp_lastDoses', JSON.stringify(lastDoses));
 
-            renderLastDoses();
             renderHistory();
-
             closeModal();
         }
 
@@ -626,56 +680,19 @@
         }
 
         function closeModal(event) {
-            // Si se hizo click en el overlay (no en el contenido del modal)
             if (event && event.target.id !== 'modalOverlay') return;
             
             const modal = document.getElementById('modalOverlay');
             modal.classList.remove('active');
-            document.body.style.overflow = ''; // Restaurar scroll
+            document.body.style.overflow = '';
             pendingMedication = null;
-        }
-
-        function renderLastDoses() {
-            const container = document.getElementById('lastDoses');
-            
-            if (Object.keys(lastDoses).length === 0) {
-                container.innerHTML = '<div class="empty-state">No hay administraciones registradas</div>';
-                return;
-            }
-
-            const medications = [
-                { id: 'adrenalina', name: 'Adrenalina' },
-                { id: 'amiodarona', name: 'Amiodarona' },
-                { id: 'gluconato', name: 'Gluconato de Calcio' },
-                { id: 'magnesio', name: 'Sulfato de Magnesio' },
-                { id: 'bicarb1m', name: 'Bicarbonatado 1M' },
-                { id: 'bicarb16m', name: 'Bicarbonatado 1/6M' }
-            ];
-
-            let html = '';
-            medications.forEach(med => {
-                const dose = lastDoses[med.id];
-                if (dose) {
-                    html += `
-                        <div class="dose-item">
-                            <div class="dose-name">${dose.name}</div>
-                            <div class="dose-times">
-                                <div class="dose-rcp">${dose.rcpTime} (RCP)</div>
-                                <div class="dose-clock">${dose.timestamp}</div>
-                            </div>
-                        </div>
-                    `;
-                }
-            });
-
-            container.innerHTML = html;
         }
 
         function renderHistory() {
             const container = document.getElementById('history');
             
             if (history.length === 0) {
-                container.innerHTML = '<div class="empty-state">No hay historial de administraciones</div>';
+                container.innerHTML = '<div class="empty-state">No hay administraciones registradas.<br>Presiona un medicamento para comenzar.</div>';
                 return;
             }
 
@@ -687,15 +704,37 @@
                             <div class="history-dot" style="background: ${entry.color}"></div>
                             <div class="history-name">${entry.name}</div>
                         </div>
-                        <div class="dose-times">
-                            <div class="dose-rcp">${entry.rcpTime}</div>
-                            <div class="dose-clock">${entry.timestamp}</div>
+                        <div class="history-times">
+                            <div class="history-rcp">${entry.rcpTime} (RCP)</div>
+                            <div class="history-clock">${entry.timestamp}</div>
                         </div>
                     </div>
                 `;
             });
 
             container.innerHTML = html;
+        }
+
+        function printHistory() {
+            if (history.length === 0) {
+                alert('No hay historial para imprimir');
+                return;
+            }
+
+            const printDate = new Date().toLocaleDateString('es-UY', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            const originalTitle = document.title;
+            document.title = `RCP - Historial de Medicaciones - ${printDate}`;
+
+            window.print();
+
+            document.title = originalTitle;
         }
 
         // Prevenir zoom accidental en iOS
