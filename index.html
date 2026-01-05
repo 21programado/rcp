@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RCP - Control de Medicaciones</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1a1a1a;
+            color: #ffffff;
+            padding: 15px;
+            min-height: 100vh;
+            touch-action: manipulation;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .timer-section {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 25px 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .timer-display {
+            font-size: 4rem;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #22d3ee;
+            margin-bottom: 20px;
+            line-height: 1;
+        }
+
+        .timer-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        button {
+            padding: 16px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            touch-action: manipulation;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .btn-start {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-pause {
+            background: #ca8a04;
+            color: white;
+        }
+
+        .btn-reset {
+            background: #dc2626;
+            color: white;
+        }
+
+        .section {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 20px 15px;
+            margin-bottom: 20px;
+        }
+
+        .section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .med-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .med-button {
+            padding: 18px 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .med-adrenalina { background: #ef4444; }
+        .med-amiodarona { background: #f97316; }
+        .med-gluconato { background: #eab308; }
+        .med-magnesio { background: #22c55e; }
+        .med-bicarb1m { background: #3b82f6; }
+        .med-bicarb16m { background: #6366f1; }
+
+        .last-doses {
+            display: grid;
+            gap: 8px;
+        }
+
+        .dose-item {
+            background: #3a3a3a;
+            padding: 12px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dose-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            flex: 1;
+        }
+
+        .dose-times {
+            text-align: right;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .dose-rcp {
+            color: #22d3ee;
+            font-weight: 600;
+        }
+
+        .dose-clock {
+            color: #999;
+            margin-top: 2px;
+        }
+
+        .history {
+            max-height: 350px;
+            overflow-y: auto;
+            display: grid;
+            gap: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .history-item {
+            background: #3a3a3a;
+            padding: 12px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .history-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .history-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-size: 0.9rem;
+        }
+
+        /* Modal de confirmación */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #2a2a2a;
+            border-radius: 16px;
+            padding: 30px 20px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            animation: modalSlideIn 0.2s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-med-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+        }
+
+        .modal-question {
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            color: #fff;
+        }
+
+        .modal-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            padding: 18px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 10px;
+        }
+
+        .modal-btn-yes {
+            background: #16a34a;
+            color: white;
+        }
+
+        .modal-btn-no {
+            background: #dc2626;
+            color: white;
+        }
+
+        /* Tablet y Desktop */
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .timer-section {
+                padding: 40px;
+            }
+
+            .timer-display {
+                font-size: 5rem;
+            }
+
+            .timer-controls {
+                display: flex;
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .timer-controls button {
+                width: auto;
+                min-width: 150px;
+            }
+
+            .section {
+                padding: 30px;
+            }
+
+            .section h2 {
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+            }
+
+            .med-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+            }
+
+            .med-button {
+                padding: 20px;
+                font-size: 1rem;
+            }
+
+            .dose-item, .history-item {
+                padding: 15px;
+            }
+
+            .dose-name, .history-name {
+                font-size: 1rem;
+            }
+
+            .dose-times {
+                font-size: 0.9rem;
+            }
+
+            .history {
+                max-height: 400px;
+            }
+        }
+
+        /* Landscape en móviles */
+        @media (max-width: 767px) and (orientation: landscape) {
+            .timer-display {
+                font-size: 3rem;
+                margin-bottom: 15px;
+            }
+
+            .timer-section {
+                padding: 20px 15px;
+            }
+
+            .section {
+                padding: 15px;
+            }
+
+            .section h2 {
+                font-size: 1.1rem;
+                margin-bottom: 12px;
+            }
+        }
+
+        /* Pantallas muy pequeñas */
+        @media (max-width: 360px) {
+            .timer-display {
+                font-size: 3.5rem;
+            }
+
+            .med-button {
+                padding: 15px 10px;
+                font-size: 0.9rem;
+            }
+
+            button {
+                padding: 14px 16px;
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 RCP - Control de Medicaciones</h1>
+            <p>Cronómetro y registro de administraciones</p>
+        </div>
+
+        <div class="timer-section">
+            <div class="timer-display" id="timerDisplay">00:00</div>
+            <div class="timer-controls">
+                <button id="startBtn" class="btn-start" onclick="toggleTimer()">
+                    ▶️ Iniciar
+                </button>
+                <button id="resetBtn" class="btn-reset" onclick="resetTimer()">
+                    🔄 Resetear
+                </button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>💊 Administrar Medicación</h2>
+            <div class="med-grid">
+                <button class="med-button med-adrenalina" onclick="administrar('adrenalina', 'Adrenalina', '#ef4444')">
+                    Adrenalina
+                </button>
+                <button class="med-button med-amiodarona" onclick="administrar('amiodarona', 'Amiodarona', '#f97316')">
+                    Amiodarona
+                </button>
+                <button class="med-button med-gluconato" onclick="administrar('gluconato', 'Gluconato de Calcio', '#eab308')">
+                    Gluconato de Calcio
+                </button>
+                <button class="med-button med-magnesio" onclick="administrar('magnesio', 'Sulfato de Magnesio', '#22c55e')">
+                    Sulfato de Magnesio
+                </button>
+                <button class="med-button med-bicarb1m" onclick="administrar('bicarb1m', 'Bicarbonatado 1M', '#3b82f6')">
+                    Bicarbonatado 1M
+                </button>
+                <button class="med-button med-bicarb16m" onclick="administrar('bicarb16m', 'Bicarbonatado 1/6M', '#6366f1')">
+                    Bicarbonatado 1/6M
+                </button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🕐 Última Administración</h2>
+            <div id="lastDoses" class="last-doses">
+                <div class="empty-state">No hay administraciones registradas</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📋 Historial Completo</h2>
+            <div id="history" class="history">
+                <div class="empty-state">No hay historial de administraciones</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación -->
+    <div id="modalOverlay" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div id="modalMedName" class="modal-med-name"></div>
+            <div class="modal-question">¿Administró este medicamento?</div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-yes" onclick="confirmarAdministracion()">
+                    ✓ SÍ
+                </button>
+                <button class="modal-btn modal-btn-no" onclick="cancelarAdministracion()">
+                    ✗ NO
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let seconds = 0;
+        let isRunning = false;
+        let intervalId = null;
+        let history = [];
+        let lastDoses = {};
+        let pendingMedication = null; // Para almacenar la medicación pendiente de confirmar
+
+        // Cargar datos del localStorage al iniciar
+        window.addEventListener('load', () => {
+            const savedSeconds = localStorage.getItem('rcp_seconds');
+            const savedHistory = localStorage.getItem('rcp_history');
+            const savedLastDoses = localStorage.getItem('rcp_lastDoses');
+            const savedRunning = localStorage.getItem('rcp_isRunning');
+
+            if (savedSeconds) seconds = parseInt(savedSeconds);
+            if (savedHistory) history = JSON.parse(savedHistory);
+            if (savedLastDoses) lastDoses = JSON.parse(savedLastDoses);
+            if (savedRunning === 'true') {
+                isRunning = true;
+                startInterval();
+            }
+
+            updateDisplay();
+            renderLastDoses();
+            renderHistory();
+        });
+
+        function formatTime(totalSeconds) {
+            const mins = Math.floor(totalSeconds / 60);
+            const secs = totalSeconds % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function updateDisplay() {
+            document.getElementById('timerDisplay').textContent = formatTime(seconds);
+            localStorage.setItem('rcp_seconds', seconds);
+        }
+
+        function startInterval() {
+            intervalId = setInterval(() => {
+                seconds++;
+                updateDisplay();
+            }, 1000);
+        }
+
+        function toggleTimer() {
+            const btn = document.getElementById('startBtn');
+            
+            if (isRunning) {
+                // Pausar
+                clearInterval(intervalId);
+                isRunning = false;
+                btn.className = 'btn-start';
+                btn.innerHTML = '▶️ Iniciar';
+                localStorage.setItem('rcp_isRunning', 'false');
+            } else {
+                // Iniciar
+                startInterval();
+                isRunning = true;
+                btn.className = 'btn-pause';
+                btn.innerHTML = '⏸️ Pausar';
+                localStorage.setItem('rcp_isRunning', 'true');
+            }
+        }
+
+        function resetTimer() {
+            if (!confirm('¿Estás seguro de reiniciar? Se perderán todos los datos.')) {
+                return;
+            }
+
+            clearInterval(intervalId);
+            seconds = 0;
+            isRunning = false;
+            history = [];
+            lastDoses = {};
+            
+            const btn = document.getElementById('startBtn');
+            btn.className = 'btn-start';
+            btn.innerHTML = '▶️ Iniciar';
+            
+            localStorage.removeItem('rcp_seconds');
+            localStorage.removeItem('rcp_history');
+            localStorage.removeItem('rcp_lastDoses');
+            localStorage.removeItem('rcp_isRunning');
+            
+            updateDisplay();
+            renderLastDoses();
+            renderHistory();
+        }
+
+        function administrar(id, name, color) {
+            // Guardar los datos para confirmar después
+            pendingMedication = { id, name, color };
+            
+            // Mostrar modal de confirmación
+            const modal = document.getElementById('modalOverlay');
+            const medNameEl = document.getElementById('modalMedName');
+            
+            medNameEl.textContent = name;
+            medNameEl.style.background = color;
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevenir scroll mientras el modal está abierto
+        }
+
+        function confirmarAdministracion() {
+            if (!pendingMedication) return;
+
+            const { id, name, color } = pendingMedication;
+            const timestamp = new Date().toLocaleTimeString('es-UY', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit' 
+            });
+            const rcpTime = formatTime(seconds);
+
+            const entry = {
+                id: Date.now(),
+                medId: id,
+                name: name,
+                color: color,
+                timestamp: timestamp,
+                rcpTime: rcpTime
+            };
+
+            history.unshift(entry);
+            lastDoses[id] = {
+                name: name,
+                timestamp: timestamp,
+                rcpTime: rcpTime
+            };
+
+            localStorage.setItem('rcp_history', JSON.stringify(history));
+            localStorage.setItem('rcp_lastDoses', JSON.stringify(lastDoses));
+
+            renderLastDoses();
+            renderHistory();
+
+            closeModal();
+        }
+
+        function cancelarAdministracion() {
+            closeModal();
+        }
+
+        function closeModal(event) {
+            // Si se hizo click en el overlay (no en el contenido del modal)
+            if (event && event.target.id !== 'modalOverlay') return;
+            
+            const modal = document.getElementById('modalOverlay');
+            modal.classList.remove('active');
+            document.body.style.overflow = ''; // Restaurar scroll
+            pendingMedication = null;
+        }
+
+        function renderLastDoses() {
+            const container = document.getElementById('lastDoses');
+            
+            if (Object.keys(lastDoses).length === 0) {
+                container.innerHTML = '<div class="empty-state">No hay administraciones registradas</div>';
+                return;
+            }
+
+            const medications = [
+                { id: 'adrenalina', name: 'Adrenalina' },
+                { id: 'amiodarona', name: 'Amiodarona' },
+                { id: 'gluconato', name: 'Gluconato de Calcio' },
+                { id: 'magnesio', name: 'Sulfato de Magnesio' },
+                { id: 'bicarb1m', name: 'Bicarbonatado 1M' },
+                { id: 'bicarb16m', name: 'Bicarbonatado 1/6M' }
+            ];
+
+            let html = '';
+            medications.forEach(med => {
+                const dose = lastDoses[med.id];
+                if (dose) {
+                    html += `
+                        <div class="dose-item">
+                            <div class="dose-name">${dose.name}</div>
+                            <div class="dose-times">
+                                <div class="dose-rcp">${dose.rcpTime} (RCP)</div>
+                                <div class="dose-clock">${dose.timestamp}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            container.innerHTML = html;
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('history');
+            
+            if (history.length === 0) {
+                container.innerHTML = '<div class="empty-state">No hay historial de administraciones</div>';
+                return;
+            }
+
+            let html = '';
+            history.forEach(entry => {
+                html += `
+                    <div class="history-item">
+                        <div class="history-left">
+                            <div class="history-dot" style="background: ${entry.color}"></div>
+                            <div class="history-name">${entry.name}</div>
+                        </div>
+                        <div class="dose-times">
+                            <div class="dose-rcp">${entry.rcpTime}</div>
+                            <div class="dose-clock">${entry.timestamp}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Prevenir zoom accidental en iOS
+        document.addEventListener('gesturestart', function (e) {
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>
