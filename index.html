@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>RCP - Control de Medicaciones</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a1a">
     <style>
         * {
             margin: 0;
@@ -742,5 +744,17 @@
             e.preventDefault();
         });
     </script>
+
+    <script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+            .then(reg => console.log('SW registrado', reg.scope))
+            .catch(err => console.error('SW error', err));
+    });
+}
+</script>
+
 </body>
 </html>
+
