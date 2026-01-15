@@ -1,13 +1,13 @@
 {
-  "name": "RCP - Control de Medicaciones",
-  "short_name": "RCP Medicación",
-  "description": "Cronómetro y registro de medicaciones durante RCP",
-  "start_url": "./index.html",
+  "name": "RCP Hospitalaria",
+  "short_name": "RCP",
+  "description": "Apoyo simple para RCP hospitalaria",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#1a1a1a",
-  "theme_color": "#1a1a1a",
   "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
   "icons": [
     {
       "src": "icons/icon-192.png",
